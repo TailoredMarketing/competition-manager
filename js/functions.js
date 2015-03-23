@@ -4,10 +4,11 @@ jQuery(document).ready( function($) {
         $('.comp_man_form_none').hide();
         $('#comp_man_form_inner thead').show();
         var fields = $('.comp_man_field_count').val();
-        var newfields = parseInt( fields ) + 1;
+        var newfields = parseInt( fields );
+		var number = parseInt( fields ) + 1;
         $('.comp_man_field_count').val(newfields);
         
-        var rowHtml = '<tr class="row"><th>'+newfields+'</th><td><input type="text" placeholder="Field Name" name="comp_man_field_name['+newfields+']"></td><td><select name="comp_man_field_type['+newfields+']"><option value="-1" disabled selected>Select field type</option><option value="0">Single line text</option><option value="1">Multi line text</option><option value="2">Checkbox</option></select></td><th><input type="checkbox" value="1" name="comp_man_field_req['+newfields+']"></th><td><input type="number" placeholder="Order" name="comp_man_field_order['+newfields+']" value="0"></td><th><input class="del_field'+newfields+'" type="hidden" value="0" name="comp_man_field_del['+newfields+']"><a href="#" class="comp_man_field_remove" rel="'+newfields+'"><i class="fa fa-trash"></i></a></th></tr>';
+        var rowHtml = '<tr class="row"><th>'+number+'</th><td><input type="text" placeholder="Field Name" name="comp_man_field_name['+newfields+']"></td><td><select name="comp_man_field_type['+newfields+']"><option value="-1" disabled selected>Select field type</option><option value="0">Single line text</option><option value="1">Multi line text</option><option value="2">Checkbox</option></select></td><th><input type="checkbox" value="1" name="comp_man_field_req['+newfields+']"></th><td><input type="number" placeholder="Order" name="comp_man_field_order['+newfields+']" value="0"></td><th><input class="del_field'+newfields+'" type="hidden" value="0" name="comp_man_field_del['+newfields+']"><a href="#" class="comp_man_field_remove" rel="'+newfields+'"><i class="fa fa-trash"></i></a></th></tr>';
         
         $('#comp_man_form_inner').append(rowHtml);
     });

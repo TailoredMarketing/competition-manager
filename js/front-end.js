@@ -9,7 +9,7 @@ jQuery(document).ready( function($) {
         event.preventDefault();
         var data = $( this ).serialize();
         $.post( ajax_object.ajax_url, data, function( data ) {
-            
+         	 $('#comp_form').html('<p>Thank you for your entry.</p>'); 
         } );
     });
 });

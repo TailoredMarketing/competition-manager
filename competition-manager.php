@@ -37,14 +37,16 @@ class WordPress_Competition_Manager {
         
 		load_plugin_textdomain( $this->text_domain, false, 'lang' );
         
+		add_action('edit_form_after_title', array( $this, 'move_meta_boxes' ) );
+		
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_register_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_register_styles' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_styles' ) );
-        
-        add_filter('single_template', array( $this, 'single_template' ) );
-        
+                
         add_action( 'add_meta_boxes_wp_comp_man', array( $this, 'comp_meta_boxes') ); 
+		add_action( 'save_post_wp_comp_man', array( $this, 'save_comp_meta_data' ) );
+		
         add_action( 'add_meta_boxes_wp_comp_entries', array( $this, 'entry_meta_boxes') ); 
         
         add_action( 'init', array( $this, 'register_post_types' ) );
@@ -63,6 +65,8 @@ class WordPress_Competition_Manager {
         add_action( 'wp_ajax_wp_comp_man_add_entry', array( $this, 'add_comp_entry' ) );
         add_action( 'wp_ajax_nopriv_wp_comp_man_add_entry', array( $this, 'add_comp_entry' ) );
         
+		add_action( 'admin_post_wp_comp_man_settings_save', array( $this, 'save_settings' ) ) ;
+		
         add_filter('manage_wp_comp_entries_posts_columns', array( $this, 'entries_columns' ), 10 );
         add_action('manage_wp_comp_entries_posts_custom_column', array( $this,'entries_columns_content'), 10, 2 );
         
@@ -72,6 +76,8 @@ class WordPress_Competition_Manager {
         add_action('restrict_manage_posts', array( $this, 'comp_filter' ) );
         add_filter( 'parse_query', array( $this, 'comp_filter_list' ) );
         
+		add_filter( 'the_content', array( $this, 'display_single_comp'), 10 );
+		
 		$this->run_plugin();
 	}
     
@@ -129,8 +135,93 @@ class WordPress_Competition_Manager {
 	}
     
     public function comp_meta_boxes() {
-        add_meta_box( 'wp_comp_entry', 'Entries', array( $this, 'entry_meta_box' ), 'wp_comp_entries', 'side' , 'default' ); 
+        add_meta_box( 'wp_comp_entry', 'Competition Details', array( $this, 'entry_meta_box' ), 'wp_comp_man', 'side' , 'default' ); 
+		add_meta_box( 'wp_comp_question', 'Competition Question', array( $this, 'comp_question_meta' ), 'wp_comp_man', 'advanced' , 'high' ); 
     }
+	public function entry_meta_box( $post ) { 
+		$meta = get_post_meta( $post->ID );
+	?>
+		<table class="form-table">
+        	<tr>
+            	<th>Start Date</th>
+                <td><input name="wp_comp_sdate" type="date" value="<?php echo $meta['wp_comp_sdate'][0]; ?>"></td>
+            </tr>
+            <tr>
+            	<th>End Date</th>
+                <td><input name="wp_comp_edate" type="date" value="<?php echo $meta['wp_comp_edate'][0]; ?>"></td>
+            </tr>
+            <tr>
+            	<th>Brand</th>
+                <td><input name="wp_comp_brand" type="text" value="<?php echo $meta['wp_comp_brand'][0]; ?>"></td>
+            </tr>
+            <tr>
+            	<th>Winners Required</th>
+                <td><input name="wp_comp_winners" type="number" min="1" step="1" value="<?php echo $meta['wp_comp_winners'][0]; ?>"></td>
+            </tr>
+            <tr>
+            	<th>Facebook Only?</th>
+                <td><input name="wp_comp_facebook" type="checkbox" value="1" value="1" <?php checked( $meta['wp_comp_facebook'][0], 1 ); ?> ></td>
+            </tr>
+        </table>
+	<?php }
+	
+	public function comp_question_meta( $post ) { 
+		$meta = get_post_meta( $post->ID );
+	?>
+		<table class="form-table">
+        	<tr>
+            	<th>Question</th>
+                <td><input type="text" name="wp_comp_question" class="large-text" value="<?php echo $meta['wp_comp_question'][0]; ?>"></td>
+            </tr>
+            <tr>
+            	<th>Answer</th>
+                <td><input type="text" name="wp_comp_answer" class="large-text" value="<?php echo $meta['wp_comp_answer'][0]; ?>"></td>
+            </tr>
+            <tr>
+            	<th>Special Instructions</th>
+                <td><input type="text" name="wp_comp_rules" class="large-text" value="<?php echo $meta['wp_comp_rules'][0]; ?>"><p class="description">e.g. Open to entrants in the UK and Europe only.</p></td>
+            </tr>
+        </table>
+	<?php }
+	
+	public function move_meta_boxes() {
+		global $post, $wp_meta_boxes;
+
+        # Output the "advanced" meta boxes:
+        #do_meta_boxes( get_current_screen(), 'advanced', $post );
+
+        # Remove the initial "advanced" meta boxes:
+        #unset($wp_meta_boxes['post']['test']);	
+	}
+	
+	public function save_comp_meta_data( $post_id, $post, $update ) {
+		if ( isset( $_REQUEST['wp_comp_question'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_question', sanitize_text_field( $_REQUEST['wp_comp_question'] ) );
+		}
+		if ( isset( $_REQUEST['wp_comp_answer'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_answer', sanitize_text_field( $_REQUEST['wp_comp_answer'] ) );
+		}
+		if ( isset( $_REQUEST['wp_comp_rules'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_rules', sanitize_text_field( $_REQUEST['wp_comp_rules'] ) );
+		}
+		if ( isset( $_REQUEST['wp_comp_sdate'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_sdate', sanitize_text_field( $_REQUEST['wp_comp_sdate'] ) );
+		}
+		if ( isset( $_REQUEST['wp_comp_edate'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_edate', sanitize_text_field( $_REQUEST['wp_comp_edate'] ) );
+		}
+		if ( isset( $_REQUEST['wp_comp_winners'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_winners', sanitize_text_field( $_REQUEST['wp_comp_winners'] ) );
+		}
+		if ( isset( $_REQUEST['wp_comp_facebook'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_facebook', sanitize_text_field( $_REQUEST['wp_comp_facebook'] ) );
+		}
+		if ( isset( $_REQUEST['wp_comp_brand'] ) ) {
+			update_post_meta( $post_id, 'wp_comp_brand', sanitize_text_field( $_REQUEST['wp_comp_brand'] ) );
+		}
+
+	}
+	
     public function entry_meta_boxes() {
         add_meta_box( 'wp_comp_entry_raw', 'Entry Details', array( $this, 'entry_meta_box_raw' ), 'wp_comp_entries', 'advanced' , 'core' ); 
     }
@@ -199,7 +290,7 @@ class WordPress_Competition_Manager {
             'hierarchical'       => false,
             'menu_position'      => null,
             'menu_icon' => $this->admin_icon,
-            'supports'           => array( 'title', 'editor', 'thumbnail', 'custom-fields' )
+            'supports'           => array( 'title', 'editor', 'thumbnail' )
         );
         register_post_type( 'wp_comp_man', $args );
         register_post_type( 'wp_comp_entries', array( 
@@ -214,6 +305,16 @@ class WordPress_Competition_Manager {
         
     }
     
+	public function display_single_comp( $content = '' ) {
+		global $post;
+		if ($post->post_type == "wp_comp_man"){
+			if(file_exists($this->plugin_path. '/templates/single.php')) {
+                include( $this->plugin_path . '/templates/single.php' );
+			} 
+		} 
+		return $content;	
+	}
+	
     public function single_template( $single ) {
         global $wp_query, $post;
 
@@ -282,27 +383,29 @@ class WordPress_Competition_Manager {
         if ( ! wp_verify_nonce( $_POST[ '_wpnonce' ], 'wp_comp_man_settings_save' ) )
             die( 'Invalid nonce.' . var_export( $_POST, true ) ); 
         
-        $data = array();
-        $count = count( $_POST['comp_man_field_name'] );
-        for( $n = 0; $n<$count; $n++ ) {
-            $name = sanitize_text_field( $_POST['comp_man_field_name'][$n] );
-            $type = sanitize_text_field( $_POST['comp_man_field_type'][$n] );
-            $order = sanitize_text_field( $_POST['comp_man_field_order'][$n] );
-            if( isset( $_POST['comp_man_field_req'][$n] ) ) {
-                $req  = $_POST['comp_man_field_req'][$n];
-            } else {
-                $req = 0;   
-            }
-            if( $_POST['comp_man_field_del'][$n] != 1 ) {
-                $data['form_fields'][$n] = array(
-                    'field_name'    => $name,
-                    'field_type'    => $type,
-                    'field_req'     => $req,
-                    'field_order'     => $order,
-                );
-            }
-        }
-        update_option( $this->option_name, $data );
+        if( isset( $_POST['comp_man_field_name'] )) {
+			$data = array();
+			$count = count( $_POST['comp_man_field_name'] );
+			for( $n = 0; $n<$count; $n++ ) {
+				$name = sanitize_text_field( $_POST['comp_man_field_name'][$n] );
+				$type = sanitize_text_field( $_POST['comp_man_field_type'][$n] );
+				$order = sanitize_text_field( $_POST['comp_man_field_order'][$n] );
+				if( isset( $_POST['comp_man_field_req'][$n] ) ) {
+					$req  = $_POST['comp_man_field_req'][$n];
+				} else {
+					$req = 0;   
+				}
+				if( $_POST['comp_man_field_del'][$n] != 1 ) {
+					$data['form_fields'][$n] = array(
+						'field_name'    => $name,
+						'field_type'    => $type,
+						'field_req'     => $req,
+						'field_order'   => $order,
+					);
+				}
+			}
+			update_option( $this->option_name, $data );
+		}
         $url = add_query_arg( 'msg', 3, admin_url('admin.php?page=competition-manager-settings' ) );
         wp_safe_redirect( $url );
         //print_var($_POST);
@@ -389,7 +492,7 @@ class WordPress_Competition_Manager {
                 </tbody>
                 <tfoot><th colspan="6"><a href="#" class="comp_man_add_row button-secondary"><i class="fa fa-plus-circle"></i> Add Row</a></th></tfoot>
             </table>
-            <input type="hidden" class="comp_man_field_count" value="<?php echo $count-1; ?>">
+            <input type="hidden" class="comp_man_field_count" value="<?php echo $count; ?>">
         </div>   
     <?php 
     }
@@ -425,6 +528,7 @@ class WordPress_Competition_Manager {
     
     public function frontend_form() {
         if( isset( $this->option['form_fields'] ) ) {
+			ob_start();
             $fields = $this->option['form_fields'];
             $i = 1;
             $count = count( $fields );
@@ -465,13 +569,17 @@ class WordPress_Competition_Manager {
             echo '<input type="hidden" name="action" value="wp_comp_man_add_entry">';
             echo'<p><button type="submit" class="btn btn-primary">Submit Answer</button> <a href="#" class="pull-right">Terms and Conditions apply</a></p>';
             echo '</form>';
-        }
+			return ob_get_contents();
+			ob_end_clean();
+        } else {
+			echo 'help';
+		}
     }
     
     public function add_comp_entry() {
         //print_var($_POST);   
         $my_post = array(
-            'post_title'    => $_POST['first-name'].' '.$_POST['last-name'].' : '.date('d-m-Y H:i:s'),
+            'post_title'    => date('d-m-Y H:i:s'),
             'post_status'   => 'publish',
             'post_type' => 'wp_comp_entries'
         );
@@ -483,6 +591,7 @@ class WordPress_Competition_Manager {
                 update_post_meta($insID, 'wp_comp_entry_'.$key, $value);  
             }
         }
+		die();
     }
     public function entries_columns ($defaults) {
         $defaults['competition'] = 'Competition';
