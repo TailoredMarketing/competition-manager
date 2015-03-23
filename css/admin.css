@@ -1,0 +1,127 @@
+#wp_comp_man {
+    margin-right: 300px;
+}
+.comp_man_left {
+    float: left;
+    width: 100%;
+}
+.comp_man_right {
+    float: right;
+    width: 281px;
+    margin-right: -300px;
+}
+.comp_man_right th {
+    text-align: left;
+}
+.comp_man_right select, .comp_man_right input[type="text"], .comp_man_right input[type="date"], .comp_man_right input[type="number"] {
+    width: 100%;
+}
+.wp-box {
+    background: #FFFFFF;
+    border: 1px solid #E5E5E5;
+    position: relative;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+    margin-bottom: 30px;
+}
+.wp-box h3 {
+    font-size: 14px;
+    padding: 8px 12px;
+    margin: 0;
+    line-height: 1.4;
+    border-bottom: 1px solid #eee;
+}
+.wp-box .inside {
+    padding: 12px;
+}
+.inside .actions  {
+    padding: 10px;
+    clear: both;
+    border-top: 1px solid #ddd;
+    background: #f5f5f5;
+    text-align: right;
+    margin-right: -12px;
+    margin-left: -12px;
+    margin-bottom: -12px;
+}
+.wp-box .actions {
+    padding: 10px;
+    clear: both;
+    border-top: 1px solid #ddd;
+    background: #f5f5f5;
+    text-align: right;
+}
+.comp_entries p {
+    padding: 0;
+    margin: 0;
+}
+.comp_entries strong {
+    font-size: 4em;
+    color: #2ea2cc;
+}
+.comp_entries {
+    text-align: center;
+    padding-bottom: 30px;
+}
+.comp_man_add_row:focus {
+    outline: none;
+    box-shadow: none;
+}
+#comp_man_form_inner {
+    border-collapse: collapse;
+    width: 100%;
+}
+#comp_man_form_inner td, #comp_man_form_inner th {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-width: 30px;
+    text-align: left;
+}
+#comp_man_form_inner input[type="text"], #comp_man_form_inner select {
+    width: 100%;
+}
+
+#comp_man_form_inner thead th {
+    text-align: left;
+}
+#comp_man_form_inner tbody th {
+    text-align: center;   
+}
+#comp_man_form_inner tfoot th {
+     background: #e0e0e0;
+     text-align: right;
+}
+.comp_man_form_none {
+    width: 600px;
+    text-align: left!important;
+}
+.wp_comp_question {
+    padding: 3px 8px;
+    font-size: 1.7em;
+    line-height: 100%;
+    height: 1.7em;
+    width: 100%;
+    outline: 0;
+    margin: 0;
+    background-color: #fff;
+    margin-bottom: 15px;
+}
+.trash_comp {
+    float: left;
+    color: #a00;
+    padding: 6px 0;
+}
+#adminmenu #menu-posts-wp_comp_man a[href="edit.php?post_type=wp_comp_man&page=competition-manager"] {
+    display: none;
+}
+.wp-list-table .facebook, .wp-list-table .column-facebook, .wp-list-table .column-dates, .wp-list-table .column-edate, .wp-list-table .column-brand, .wp-list-table .column-entries {
+    text-align: center;
+}
+.wp-list-table table td, .wp-list-table table th {
+    padding: 2px 0;
+}
+.wp-list-table table td {
+    padding-left: 10px;
+}
+.wp-list-table .facebook i {
+    color: #3b5998;
+}
